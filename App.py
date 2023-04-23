@@ -1,5 +1,10 @@
 from tkinter import *
 from tkinter import ttk
+from matplotlib.figure import Figure
+import numpy as np
+from matplotlib.backends.backend_tkagg import (
+    FigureCanvasTkAgg, NavigationToolbar2Tk)
+
 
 
 class Scenario_value:
@@ -52,11 +57,25 @@ class Scenario_value:
 if __name__ == "__main__":
     root = Tk()
     root.title("Scenario")
+    fig = Figure(figsize=(5, 4), dpi=100)
+    t = np.arange(0, 3, .01)
+    ax = fig.add_subplot()
+    line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
+    ax.set_xlabel("time [s]")
+    ax.set_ylabel("f(t)")
 
 
+
+    
     f = ttk.Frame(root)
     f.grid(column=0, row=0)
     
+    canvas = FigureCanvasTkAgg(fig, master=f)  # A tk.DrawingArea.
+    canvas.draw()
+    toolbar = NavigationToolbar2Tk(canvas, root, pack_toolbar=False)
+    toolbar.update()
+
+
     scenario_values = [('range', 0, 100), ('range2', 20, 200), 
                        ('range3', 30, 300), ('range4', 40, 400),
                        ('range5', 50, 500), ('range6', 60, 600),
@@ -72,6 +91,7 @@ if __name__ == "__main__":
     errmsg = StringVar()
     msg = ttk.Label(f, font='TkSmallCaptionFont', foreground='red', textvariable=errmsg)
     msg.grid(column=3, row=8)
+    canvas.get_tk_widget().grid()
     root.mainloop()
 
 
