@@ -7,6 +7,9 @@ from matplotlib.backends.backend_tkagg import (
 
 
 
+
+
+
 class Scenario_value:
     def __init__(self, parent, name, coords, value_ranges) -> None:
         x, y = coords
