@@ -8,9 +8,8 @@ from matplotlib.figure import Figure
 import numpy as np
 
 
-
-def increment_x(scenario):
-    scenario['x'] = scenario['x'] + 10
+def increment_x(scenario, m_data):
+    scenario['x'] = scenario['x'] + m_data['vx']
     return scenario
 
 
@@ -36,6 +35,8 @@ class Sim(Thread):
         self.ts = 0.5
         self.funcs  = funcs
 
+        self.m_data= {}
+        self.m_data['vx'] = 10
         self.sim_scenario = {}
         
         self.lock_scenario = Lock()
@@ -58,7 +59,7 @@ class Sim(Thread):
         while True:
             self.lock_scenario.acquire()
             for func in self.funcs:
-                self.sim_scenario = func(self.sim_scenario)
+                self.sim_scenario = func(self.sim_scenario, self.m_data)
             self.lock_scenario.release()
             self.update_output()
             sleep(self.ts)
@@ -70,6 +71,12 @@ class Sim(Thread):
         self.lock_output.release()
         self.output_flag.set(True)
         
+    def update_m_data(self, new_m_data):
+        self.lock_scenario.acquire()
+        for key in new_m_data.keys():
+            self.m_data[key] = new_m_data[key]
+            print(f"Updating m data {key}: {new_m_data[key]} ")
+        self.lock_scenario.release()    
         
         
 def sim_update(*args):
@@ -84,12 +91,34 @@ def update_x(*args):
     new_scenario['x'] = float(tk_variables['x'].get())
     s.change_sim_scenario(new_scenario)
     
-
+    
+def update_m_data(*args):
+    print("eh")
+    try:
+        new_m_data = {}
+        new_m_data['vx'] = float(vx.get())
+        s.update_m_data(new_m_data)
+    except:
+        pass
 if __name__ == "__main__":
     # 
     root = Tk()
     root.title("Scenario")
-
+    n = ttk.Notebook(root)
+    
+    f1 = ttk.Frame(n)
+    f2 = ttk.Frame(n)
+    n.add(f1, text='sim')
+    n.add(f2, text='m data')
+    
+    vx = StringVar()
+    vx.set('1')
+    ttk.Entry(f2, textvariable=vx).grid(row=0, column=0)
+    vx.trace_add('write', update_m_data)
+    
+    tk_mdata = {}
+    tk_mdata['vx'] = 10
+    
     # Variable utilizada para el label
     x = StringVar()
     x.set('1')
@@ -99,14 +128,15 @@ if __name__ == "__main__":
 
     
 
-    x_sim_label = Label(root, textvariable=x).grid(row=0, column=0)
-    x_entry = Scale(root, variable=x, command=update_x).grid(row=1, column=0)
-    x_plot = FigPlot(root)
+    x_sim_label = Label(f1, textvariable=x).grid(row=0, column=0)
+    x_entry = Scale(f1, variable=x, command=update_x).grid(row=1, column=0)
+    x_plot = FigPlot(f1)
     x_plot.canvas.get_tk_widget().grid(column=0,row=2)
     
 
     s = Sim([increment_x], tk_variables)
     s.output_flag.trace_add("write", sim_update)
     s.start()
+    n.grid(row=0, column=0)
 
     root.mainloop()
