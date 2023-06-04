@@ -1,11 +1,13 @@
-from tkinter.ttk import Label, Entry, Frame
-from tkinter import Widget, Tk, END
+from tkinter.ttk import Label, Entry, Frame, Scrollbar
+from tkinter import Tk, END
 from typing import List
-from pandas import read_excel
+from pandas import read_excel, DataFrame
+from Scrollable import Scrollable
 
-class Table(Frame):
-    def __init__(self, parent : Widget):
-        Frame.__init__(self, parent)
+
+class Table(Scrollable):
+    def __init__(self, parent : Tk):
+        Scrollable.__init__(self, parent)
         self.__rows_number = 0
         self.__columns_number = 0
         self.__columns_names = {}
@@ -19,7 +21,7 @@ class Table(Frame):
         if len(data) > self.__columns_number:
             self.__columns_number = len(data) + 1
         
-        e = Entry(self, width=10, foreground='blue')
+        e = Entry(self, width=20, foreground='blue')
         e.grid(row=self.__rows_number, column=0)
         e.insert(END, str(self.__rows_number) )
         r = [e]
@@ -35,7 +37,7 @@ class Table(Frame):
     def add_column_index(self, name: str, resize=False):
         self.__columns_names[name] = self.__columns_number
         
-        e = Entry(self, width=10, foreground='blue')
+        e = Entry(self, width=20, foreground='blue')
         e.grid(row=0, column=self.__columns_number)
         e.insert(END, name)
         if self.cells:
@@ -46,8 +48,12 @@ class Table(Frame):
         self.__columns_number += 1
         
         
+    def create_table_from_df(self, df: DataFrame):
+        for c in df.columns:
+            self.add_column_index(c)
         
-        
+        for index, row in df.iterrows():
+            self.add_row(row)
         
         
         
@@ -63,9 +69,13 @@ if __name__ == "__main__":
     d = d.iloc[1:]
     print(d)
     t = Table(root)
-    t.grid(row=0,column=0)
+    
+    #t.grid(row=0,column=0)
+    t.create_table_from_df(d)
+    t.update()
+    '''
     for c in range(4):
         data = [n for n in range(3)]
         t.add_row(data)
-    
+    '''
     root.mainloop()
