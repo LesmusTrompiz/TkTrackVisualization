@@ -1,24 +1,26 @@
 from controller.main_controller import MainController
 from views.main_view import MainView
-from tkinter import Tk, PhotoImage, Label
+from tkinter import Tk, Label
 from tkinter.ttk import  Frame
-
+from PIL import Image,ImageTk
 
 
 if __name__ == "__main__":
-    root = Tk("Comparador de XMLS")
+    root = Tk("XML Comparer")
+    
     main_view = MainView(root)
-
-    
     main_controller = MainController(main_view)
+
+
     title_frame = Frame(root, relief='ridge', borderwidth=10)
-    
     label = Label(title_frame, text="COMPARADOR DE XMLS", font={'size' :30})
-    
-    
-    image_label =  Label(title_frame, width=300,  height=150)
-    image = PhotoImage(file='D:/Proyectos/TkTrackVisualization/xml_comparer/ex2.png')#,width=100, height=200)
-    image_label['image'] = image
+
+    # Resize the image 
+    img= (Image.open('D:/Proyectos/TkTrackVisualization/xml_comparer/ex2.png'))
+    resized_image= img.resize((150,150), Image.ANTIALIAS)
+    new_image= ImageTk.PhotoImage(resized_image)
+    image_label =  Label(title_frame, width=150,  height=150)
+    image_label['image'] = new_image
     
     image_label.grid(row=0, column=3)
     label.grid(row=0, column=0, sticky='NS')#, padx = main_view.winfo_screenwidth()/2)

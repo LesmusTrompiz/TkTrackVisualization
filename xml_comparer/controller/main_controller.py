@@ -9,9 +9,9 @@ class MainController:
         self.view = main_view
         self.view.frame_f1.button_select.configure(command=self.open_file_1)
         self.view.frame_f2.button_select.configure(command=self.open_file_2)
-        self.view.frame_f3.button_select.configure(command=self.compare_file_1_2)
-        self.view.frame_f4.button_select.configure(command=self.compare_file_2_1)
-        
+        #self.view.frame_f3.button_select.configure(command=self.compare_file_1_2)
+        #self.view.frame_f4.button_select.configure(command=self.compare_file_2_1)
+        self.view.compare_button.configure(command=self.compare_files)
         
         self.t1 = None
         self.t2 = None
@@ -53,6 +53,26 @@ class MainController:
             root_id = self.view.frame_f4.tree_view.insert('', 0, text=tree_text)
             self.insert_subtree(auxt1, root_id, self.view.frame_f4.tree_view)         
         
+        
+        
+    def compare_files(self):
+        if self.t1 == None or self.t2 == None: return
+        auxt1 = deepcopy(self.t1)
+        auxt2 = deepcopy(self.t2)
+        
+        if different_subtrees(auxt1 , auxt2):
+            tree_text = f'TAG {auxt1.tag} ATTRIBUTES {auxt1.attrib.keys()}'
+            root_id = self.view.frame_f3.tree_view.insert('', 0, text=tree_text)
+            self.insert_subtree(auxt1, root_id, self.view.frame_f3.tree_view)    
+        
+            auxt1 = deepcopy(self.t2)
+            auxt2 = deepcopy(self.t1)
+        
+            tree_text = f'TAG {auxt1.tag} ATTRIBUTES {auxt1.attrib.keys()}'
+            root_id = self.view.frame_f4.tree_view.insert('', 0, text=tree_text)
+            self.insert_subtree(auxt1, root_id, self.view.frame_f4.tree_view)              
+       
+    
     def insert_subtree(self, tree, tree_id, tree_view):
         for subtree in tree:
             subtree_text = f'TAG {subtree.tag} ATTRIBUTES {subtree.attrib.keys()}'
